@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project output (không commit kết quả test)
+results.csv
+*.log
+
+# Credentials (cực kì quan trọng với SDET!)
+.env
+secrets.json
+
+# Tại sao SDET phải quan tâm .gitignore?
+#    Không commit password/API key vào repo (bảo mật)
+#    Không commit file kết quả test (sinh ra mỗi lần chạy, làm repo nặng)
+#    Không commit virtual environment (mỗi máy tự cài)
