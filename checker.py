@@ -66,18 +66,49 @@ def get_strength_label(score):
         return "Very Strong"
 
 
+def check_password(password):
+    checks = [
+            ("Length >= 8",     check_length),
+            ("Uppercase",       check_uppercase),
+            ("Lowercase",       check_lowercase),
+            ("Digit",           check_digit),
+            ("Special",         check_special),
+            ("CommonPattern",   check_common_patterns),
+            ("Whitespace",      check_whitespace)
+            ]
+
+    details = []
+    score = 0
+
+    for name, func in checks:
+        passed, message = func(password)
+        details.append({
+            "check": name,
+            "passed": passed,
+            "message": message
+            })
+        if passed:
+            score += 1
+    return {
+        "password": password,
+        "score": score,
+        "max_score": len(checks),
+        "strength": get_strength_label(score),
+        "details": details
+    }
+
+
 if __name__ == "__main__":
-    print("=== Test 1: Strong password ===")
-    print(check_common_patterns("Abc123!@"))
+    test_cases = [
+        "Abc123!@",         # expect: Very Strong, 7/7
+        "password123",      # expect: Weak, chứa "password"
+        "short",            # expect: Weak
+        "AllLowercase1!",   # expect: Strong hoặc Very Strong
+        "NOLOWERCASE1!",    # expect: Strong (thiếu lowercase)
+        "abc 123!",         # expect: Weak (có whitespace, ngắn)
+    ]
     
-    print("\n=== Test 2: Contains 'password' ===")
-    print(check_common_patterns("mypassword123"))   # phải False
-    
-    print("\n=== Test 3: Contains 'qwerty' ===")
-    print(check_common_patterns("qwerty2024"))      # phải False
-    
-    print("\n=== Test 4: Too short ===")
-    print(check_length("abc"))                      # phải False
-    
-    print("\n=== Test 5: Has whitespace ===")
-    print(check_whitespace("abc 123"))              # phải False
+    for pw in test_cases:
+        result = check_password(pw)
+        print(result)              # in cả dict
+        print(result["details"])   # in list details
