@@ -97,18 +97,24 @@ def check_password(password):
         "details": details
     }
 
+def print_report(result):
+    password = result["password"]
+    masked = password[:3] + "*" * (len(password) - 3) if len(password) > 3 else "***"
+    details = result["details"]
+    print(f"{'=' * 50}")
+    print(f"Password: {masked}")
+    print(f"Score: {result['score']}/{result['max_score']}")
+    print(f"Strength: {result['strength']}")
+    print(f"{'-' * 50}")
+    for detail in details:
+        icon = "✅" if detail["passed"] else "❌"
+        print(f"{icon} {detail['check']:<20} {detail['message']}")
+    print(f"{'=' * 50}")
+
 
 if __name__ == "__main__":
-    test_cases = [
-        "Abc123!@",         # expect: Very Strong, 7/7
-        "password123",      # expect: Weak, chứa "password"
-        "short",            # expect: Weak
-        "AllLowercase1!",   # expect: Strong hoặc Very Strong
-        "NOLOWERCASE1!",    # expect: Strong (thiếu lowercase)
-        "abc 123!",         # expect: Weak (có whitespace, ngắn)
-    ]
+    test_cases = ["Abc123!@", "password123", "short", "ab"]
     
     for pw in test_cases:
         result = check_password(pw)
-        print(result)              # in cả dict
-        print(result["details"])   # in list details
+        print_report(result)
