@@ -1,4 +1,5 @@
-# Password Strength Checker
+# Password Strength Checker.
+import csv
 
 # Hằng số
 MIN_LENGTH = 8
@@ -111,10 +112,52 @@ def print_report(result):
         print(f"{icon} {detail['check']:<20} {detail['message']}")
     print(f"{'=' * 50}")
 
+def read_passwords(filepath):
+    password = []
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    password.append(line.strip())
+    except FileNotFoundError:
+        print(f"File not found: {filepath}")
+    return password
+
+def write_results(results, filepath):
+    fieldnames = ["password", "score", "strength",
+                  "length", "uppercase", "lowercase",
+                  "digit", "special", "common_pattern", "whitespace"]
+    with open(filepath, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        check_keys = ["length", "uppercase", "lowercase",
+              "digit", "special", "common_pattern", "whitespace"]
+        
+        for result in results:
+            pw = result["password"]
+            masked = pw[:3] + "*" * (len(pw) - 3) if len(pw) > 3 else "***"
+            row = {
+                "password": masked,
+                "score": result["score"],
+                "strength": result["strength"]
+            }
+            
+            for key, detail in zip(check_keys, result["details"]):
+                row[key] = "PASS" if detail["passed"] else "FAIL"
+            writer.writerow(row)
+
+    print(f"Results written to: {filepath}")
+                
 
 if __name__ == "__main__":
-    test_cases = ["Abc123!@", "password123", "short", "ab"]
+    passwords = read_passwords("passwords.txt")
+    print(f"Read {len(passwords)} passwords")
     
-    for pw in test_cases:
+    results = []
+    for pw in passwords:
         result = check_password(pw)
         print_report(result)
+        results.append(result)
+    
+    write_results(results, "results.csv")
