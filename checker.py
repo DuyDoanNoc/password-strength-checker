@@ -150,14 +150,55 @@ def write_results(results, filepath):
     print(f"Results written to: {filepath}")
                 
 
-if __name__ == "__main__":
-    passwords = read_passwords("passwords.txt")
-    print(f"Read {len(passwords)} passwords")
-    
-    results = []
-    for pw in passwords:
-        result = check_password(pw)
+def main():
+    print("╔══════════════════════════════════════╗")
+    print("║   PASSWORD STRENGTH CHECKER v1.0     ║")
+    print("╚══════════════════════════════════════╝")
+
+    print("\nOptions:")
+    print("     1. Check single password")
+    print("     2. Check passwords from file")
+
+    choice = input("\nYour choice (1/2): ").strip()
+
+    if choice == "1":
+        password = input("Enter your password: ").strip()
+        result = check_password(password)
         print_report(result)
-        results.append(result)
-    
-    write_results(results, "results.csv")
+
+    elif choice == "2":
+        filepath = input("Enter file path (default: passwords.txt): ").strip()
+        if not filepath:
+            filepath = "passwords.txt"
+
+        passwords = read_passwords(filepath)
+
+        if not passwords:
+            print("No passwords found!")
+            return
+        
+        print(f"\nChecking {len(passwords)} passwords...")
+
+        results = []
+        strength_count = {"Weak": 0, "Medium": 0, "Strong": 0, "Very Strong": 0}
+
+        for pw in passwords:
+            result = check_password(pw)
+            results.append(result)
+            print_report(result)
+            strength_count[result["strength"]] += 1
+
+        print(f"\n{'=' * 50}")
+        print(f"SUMMARY: {len(passwords)} passwords checked")
+        print(f"{'-' * 50}")
+        for strength, count in strength_count.items():
+            print(f"    {strength:<12}  {count:>3}")
+        print(f"{'=' * 50}")
+
+        write_results(results, "results.csv")
+
+    else:
+        print("Invalid choice!")
+
+if __name__ == "__main__":
+    main()
